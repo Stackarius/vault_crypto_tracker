@@ -7,4 +7,5 @@ class AppColors {
   static const Color black = Color(0xFF000000);
   static const Color success = Color(0xFF48D49E);
   static const Color error = Color(0xFFFF4D4F);
+  static const Color secondary = Color.fromARGB(0, 18, 18, 18);
 }
