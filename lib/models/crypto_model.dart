@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class Crypto {
   final String id;
+  final String? description;
   final String name;
   final String symbol;
   final double currentPrice;
@@ -13,6 +14,7 @@ class Crypto {
 
   Crypto({
     required this.id,
+    this.description,
     required this.name,
     required this.symbol,
     required this.currentPrice,
@@ -26,6 +28,7 @@ class Crypto {
   factory Crypto.fromJson(Map<String, dynamic> json) {
     return Crypto(
       id: json['id'] ?? '',
+      description: json['description'] ?? '',
       name: json['name'] ?? '',
       symbol: json['symbol']?.toString().toUpperCase() ?? '',
       currentPrice: (json['current_price'] ?? 0).toDouble(),
@@ -39,6 +42,7 @@ class Crypto {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'description': description,
       'name': name,
       'symbol': symbol,
       'current_price': currentPrice,
@@ -52,6 +56,7 @@ class Crypto {
 
   Crypto copyWith({
     String? id,
+    String? description,
     String? name,
     String? symbol,
     double? currentPrice,
@@ -63,6 +68,7 @@ class Crypto {
   }) {
     return Crypto(
       id: id ?? this.id,
+      description: description ?? this.description,
       name: name ?? this.name,
       symbol: symbol ?? this.symbol,
       currentPrice: currentPrice ?? this.currentPrice,
