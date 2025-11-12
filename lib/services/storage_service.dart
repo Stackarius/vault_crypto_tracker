@@ -18,7 +18,7 @@ class StorageService {
   Future<List<Crypto>> getCacheedCryptos() async {
     final box = await Hive.openBox(cryptoBoxName);
     final List<Crypto> cryptos = [];
-    for (var key in cryptos) {
+    for (var key in box.keys) {
       final json = box.get(key) as Map<dynamic, dynamic>;
       cryptos.add(Crypto.fromJson(Map<String, dynamic>.from(json)));
     }
