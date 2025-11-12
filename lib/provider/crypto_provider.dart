@@ -22,7 +22,44 @@ class CryptoProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String get error => _error;
 
-  //
+  // fetch trending cryptos
+  Future<void> fetchTrending({bool fromRefresh = false}) async {
+    _isLoading = true;
+    _error = '';
+    notifyListeners();
+
+    try {
+      final newData = await _coinGeckoService.getTrendingCryptos();
+      await _storageService.saveCryptos(newData);
+      _allCryptos = newData;
+
+      _favorites = await _storageService.getFavorites();
+      for (var crypto in _allCryptos) {
+        crypto.isFavorite = _favorites.contains(crypto.id);
+      }
+
+      _filteredCryptos = _allCryptos;
+      _isLoading = false;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+
+      // Load from cache
+      final cachedData = await _storageService.getCacheedCryptos();
+
+      // Only use cached data if e dey
+      if (cachedData.isNotEmpty) {
+        _allCryptos = cachedData;
+        _filteredCryptos = cachedData;
+
+        if (fromRefresh) {
+          _error = 'Offline mode: Showing cached data';
+        }
+      }
+    }
+  }
+
+  // fetch 50 cryptos
   Future<void> fetchCryptos({bool fromRefresh = false}) async {
     _isLoading = true;
     _error = '';
@@ -47,12 +84,10 @@ class CryptoProvider extends ChangeNotifier {
       // Load from cache
       final cachedData = await _storageService.getCacheedCryptos();
 
-      // Only use cached data if we have it
       if (cachedData.isNotEmpty) {
         _allCryptos = cachedData;
         _filteredCryptos = cachedData;
 
-        // If this was a refresh attempt, notify user we're using cached data
         if (fromRefresh) {
           _error = 'Offline mode: Showing cached data';
         }
@@ -81,7 +116,7 @@ class CryptoProvider extends ChangeNotifier {
   Future<void> toggleFav(String cryptoId) async {
     final isFav = _favorites.contains(cryptoId);
 
-    if (!isFav) {
+    if (isFav) {
       _favorites.remove(cryptoId);
       await _storageService.removeFavorite(cryptoId);
       print('Removed from favorites: $cryptoId');
@@ -94,6 +129,7 @@ class CryptoProvider extends ChangeNotifier {
     for (var crypto in _allCryptos) {
       if (crypto.id == cryptoId) {
         crypto.isFavorite = !isFav;
+        break;
       }
     }
     notifyListeners();
